@@ -1,7 +1,6 @@
 #![cfg(feature = "testutils")]
 
-use crate::cryptography::Domain;
-use crate::Price;
+use crate::{Domain, Price};
 use ed25519_dalek::Keypair;
 use soroban_sdk::testutils::ed25519::Sign;
 use soroban_sdk::{BigInt, Env, EnvVal, FixedBinary, IntoVal, Vec};

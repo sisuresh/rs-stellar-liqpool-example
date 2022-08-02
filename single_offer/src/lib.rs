@@ -3,15 +3,18 @@
 #[cfg(feature = "testutils")]
 extern crate std;
 
-mod cryptography;
 mod test;
 pub mod testutils;
 
 use soroban_sdk::{contractimpl, contracttype, vec, BigInt, Env, FixedBinary, IntoVal, RawVal};
 use soroban_token_contract as token;
-use token::public_types::{
-    Authorization, Identifier, KeyedAccountAuthorization, KeyedAuthorization,
-    KeyedEd25519Signature, U256,
+use token::{
+    cryptography::ContractDataKey,
+    nonce::read_nonce,
+    public_types::{
+        Authorization, Identifier, KeyedAccountAuthorization, KeyedAuthorization,
+        KeyedEd25519Signature, U256,
+    },
 };
 
 #[derive(Clone, Copy)]
@@ -24,10 +27,18 @@ pub enum DataKey {
     Nonce = 4,
 }
 
+impl ContractDataKey for DataKey {}
+
 impl IntoVal<Env, RawVal> for DataKey {
     fn into_val(self, env: &Env) -> RawVal {
         (self as u32).into_val(env)
     }
+}
+
+#[repr(u32)]
+pub enum Domain {
+    Withdraw = 0,
+    UpdatePrice = 1,
 }
 
 // Price is 1 unit of selling in terms of buying. For example, if you wanted
@@ -127,6 +138,14 @@ pub fn to_administrator_authorization(e: &Env, auth: Authorization) -> KeyedAuth
     }
 }
 
+pub fn get_nonce_key(auth: &KeyedAuthorization) -> Option<DataKey> {
+    match auth {
+        KeyedAuthorization::Contract => None,
+        KeyedAuthorization::Ed25519(_kea) => Some(DataKey::Nonce),
+        KeyedAuthorization::Account(_kaa) => Some(DataKey::Nonce),
+    }
+}
+
 /*
 How to use this contract to trade
 
@@ -202,16 +221,17 @@ impl SingleOfferTrait for SingleOffer {
     }
 
     fn nonce(e: Env) -> BigInt {
-        cryptography::read_nonce(&e)
+        read_nonce(&e, DataKey::Nonce)
     }
 
     fn withdraw(e: Env, admin: Authorization, amount: BigInt) {
         let auth = to_administrator_authorization(&e, admin.clone());
-        cryptography::check_auth(
+        token::cryptography::check_auth(
             &e,
-            auth,
-            cryptography::Domain::Withdraw,
+            &auth,
+            Domain::Withdraw as u32,
             (vec![&e, amount.clone()]).into_env_val(&e),
+            get_nonce_key(&auth),
         );
 
         transfer_sell(&e, read_administrator(&e), amount);
@@ -222,11 +242,12 @@ impl SingleOfferTrait for SingleOffer {
             panic!("d is zero but cannot be zero")
         }
         let auth = to_administrator_authorization(&e, admin.clone());
-        cryptography::check_auth(
+        token::cryptography::check_auth(
             &e,
-            auth,
-            cryptography::Domain::UpdatePrice,
+            &auth,
+            Domain::UpdatePrice as u32,
             (n.clone(), d.clone()).into_env_val(&e),
+            get_nonce_key(&auth),
         );
 
         put_price(&e, Price { n, d });
