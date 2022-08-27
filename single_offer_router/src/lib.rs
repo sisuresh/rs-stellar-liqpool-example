@@ -79,7 +79,7 @@ pub trait SingleOfferRouterTrait {
         buy_token: BytesN<32>,
     ) -> BytesN<32>;
 
-    fn noncee(e: Env, id: Identifier) -> BigInt;
+    fn nonce(e: Env, id: Identifier) -> BigInt;
 }
 
 pub fn offer_salt(
@@ -200,7 +200,7 @@ impl SingleOfferRouterTrait for SingleOfferRouter {
         get_offer(&e, &salt)
     }
 
-    fn noncee(e: Env, id: Identifier) -> BigInt {
+    fn nonce(e: Env, id: Identifier) -> BigInt {
         read_nonce(&e, id)
     }
 }

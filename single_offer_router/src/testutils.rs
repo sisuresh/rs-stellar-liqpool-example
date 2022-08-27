@@ -40,7 +40,7 @@ impl SingleOfferRouter {
 
     pub fn safe_trade(&self, to: &Keypair, offer: &[u8; 32], amount: &BigInt, min: &BigInt) {
         let to_id = to_ed25519(&self.env, &to);
-        let nonce = self.noncee(&to_id);
+        let nonce = self.nonce(&to_id);
 
         let mut args: Vec<RawVal> = Vec::new(&self.env);
         args.push(nonce.clone().into_val(&self.env));
@@ -74,7 +74,7 @@ impl SingleOfferRouter {
         self.client().get_offer(admin.clone(), token_a, token_b)
     }
 
-    pub fn noncee(&self, id: &Identifier) -> BigInt {
-        self.client().noncee(id.clone())
+    pub fn nonce(&self, id: &Identifier) -> BigInt {
+        self.client().nonce(id.clone())
     }
 }
