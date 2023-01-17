@@ -859,6 +859,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "soroban-distribution-contract"
+version = "0.0.0"
+dependencies = [
+ "soroban-auth",
+ "soroban-sdk",
+]
+
+[[package]]
 name = "soroban-env-common"
 version = "0.0.12"
 source = "git+https://github.com/stellar/rs-soroban-env?rev=65498c8#65498c84ccc30df302c99b50af31752f7aa087e8"
