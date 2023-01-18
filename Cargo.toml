@@ -23,7 +23,8 @@ members = [
     "errors",
     "wallet",
     "alloc",
-    "distribution"
+    "distribution",
+    "distribution_v2"
 ]
 
 [profile.release-with-logs]
