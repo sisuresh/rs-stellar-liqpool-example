@@ -14,6 +14,10 @@ soroban-token-sdk = { version = "0.9.1" }
 [dev_dependencies]
 soroban-sdk = { version = "0.9.1", features = ["testutils"] }
 
+[patch.crates-io]
+soroban-sdk = { path = "../../rs-soroban-sdk/soroban-sdk" }
+soroban-token-sdk = { path = "../../rs-soroban-sdk/soroban-token-sdk" }
+
 [profile.release]
 opt-level = "z"
 overflow-checks = true
